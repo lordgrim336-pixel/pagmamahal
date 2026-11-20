@@ -11,6 +11,6 @@ DAILY_CAP = "200"
 PER_VISITOR_DAILY_CAP = "10"
 
 # Daily limits. Created with: npx wrangler kv namespace create REPORTS
-# [[kv_namespaces]]
-# binding = "REPORTS"
-# id = "<filled in at setup>"
+[[kv_namespaces]]
+binding = "REPORTS"
+id = "ac498713bd004cca9bde252db587a3b4"

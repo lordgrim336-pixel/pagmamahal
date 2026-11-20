@@ -4,8 +4,8 @@
 //   email                       -> opens a pre-filled email
 // If none is set, the report is copied to the clipboard instead.
 export const REPORT = {
-  endpoint: "",
-  turnstileSiteKey: "",
+  endpoint: "https://pagmamahal-reports.lord-grim336.workers.dev/report",
+  turnstileSiteKey: "0x4AAAAAAGJ2eK_VwUyvluTt",
   githubRepo: "lordgrim336-pixel/pagmamahal",
   email: "",
 };
