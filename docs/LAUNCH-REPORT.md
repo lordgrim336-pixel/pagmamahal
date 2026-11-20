@@ -116,6 +116,12 @@ Those are rejected automatically.
 **Optional:** a custom domain such as `pagmamahalmaps.com` costs about $10–15 a
 year for a .com (it's not required).
 
+**Photos (added with the redesign): still $0.** About 5,600 thumbnails of about
+6 KB each (~35 MB) are published with the site, well within Cloudflare Pages'
+free limits (20,000 files, unlimited bandwidth). The daily refresh takes about
+10 minutes longer, which is still free for a public repository. Full-size photos
+load straight from Pag-IBIG's server, so they cost nothing to serve.
+
 ### The Claude review, in tokens
 
 The routine runs on your Claude Pro subscription. Its runs count against your
