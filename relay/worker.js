@@ -106,7 +106,13 @@ export default {
       },
       body: JSON.stringify({ message: `Pin report ${id}`, content: toBase64(JSON.stringify(report, null, 2) + "\n"), branch: "main" }),
     });
-    if (!res.ok) return json({ ok: false, error: "Couldn't save the report. Please try again later." }, 502, cors);
+    if (!res.ok) {
+      // Logged for `wrangler tail` / the Cloudflare dashboard; contains no secrets.
+      const detail = (await res.text()).slice(0, 300);
+      const tokenShape = String(env.GITHUB_TOKEN || "").match(/^(github_pat_|ghp_)/)?.[1] ?? "unexpected-format";
+      console.log(JSON.stringify({ event: "github_save_failed", status: res.status, detail, tokenShape, tokenLength: String(env.GITHUB_TOKEN || "").length }));
+      return json({ ok: false, error: "Couldn't save the report. Please try again later." }, 502, cors);
+    }
     return json({ ok: true, id }, 200, cors);
   },
 };
