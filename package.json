@@ -10,7 +10,7 @@
     "update-overture": "node scripts/update-overture.mjs",
     "update-boundaries": "node scripts/update-boundaries.mjs",
     "eval-locations": "node --max-old-space-size=6000 scripts/eval-locations.mjs",
-    "test": "node --test tests/",
+    "test": "node --test \"tests/*.test.mjs\"",
     "icons": "node scripts/make-icons.mjs"
   },
   "engines": {
