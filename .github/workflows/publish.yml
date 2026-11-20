@@ -1,5 +1,10 @@
-# Collects Pag-IBIG listings, places the pins, and publishes the site on
-# GitHub Pages. Free for public repositories.
+# Collects Pag-IBIG listings, places the pins, and publishes Pagmamahal Maps to
+# Cloudflare Pages (https://pagmamahal-maps.pages.dev). The old GitHub Pages
+# address only redirects there. Free for public repositories and on
+# Cloudflare's free plan.
+#
+# Needs one repository secret: CLOUDFLARE_API_TOKEN (a Cloudflare API token
+# with "Cloudflare Pages: Edit" permission for this account).
 name: Publish site
 
 on:
@@ -91,11 +96,28 @@ jobs:
             [ "$ok" = 1 ] || { echo "::error::Couldn't save the location cache"; exit 1; }
           fi
 
+      - name: Publish to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 47f6ce454701964dd5a38d930c27894c
+        run: npx --yes wrangler@4.14.0 pages deploy public --project-name pagmamahal-maps --branch main --commit-dirty=true
+
+      - name: Build the redirect for the old GitHub Pages address
+        run: |
+          mkdir -p redirect
+          cat > redirect/index.html <<'EOF'
+          <!doctype html><meta charset="utf-8"><title>Pagmamahal Maps has moved</title>
+          <meta http-equiv="refresh" content="0; url=https://pagmamahal-maps.pages.dev/">
+          <link rel="canonical" href="https://pagmamahal-maps.pages.dev/">
+          <p>Pagmamahal Maps has moved to <a href="https://pagmamahal-maps.pages.dev/">pagmamahal-maps.pages.dev</a>.</p>
+          EOF
+          cp redirect/index.html redirect/404.html
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: redirect
 
   deploy:
     needs: build

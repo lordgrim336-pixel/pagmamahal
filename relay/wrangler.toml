@@ -5,7 +5,7 @@ compatibility_date = "2026-11-01"
 workers_dev = true
 
 [vars]
-ALLOWED_ORIGINS = "https://lordgrim336-pixel.github.io,http://localhost:5173"
+ALLOWED_ORIGINS = "https://pagmamahal-maps.pages.dev,http://localhost:5173"
 GITHUB_REPO = "lordgrim336-pixel/pagmamahal"
 DAILY_CAP = "200"
 PER_VISITOR_DAILY_CAP = "10"

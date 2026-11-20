@@ -22,9 +22,10 @@
 import { readFile, writeFile, readdir, unlink } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadAdminAreas, contains } from "./lib/admin-areas.mjs";
 import { km } from "./lib/overture-match.mjs";
+import { SITE } from "../public/js/config.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const INBOX = join(ROOT, "data", "inbox");
@@ -34,7 +35,7 @@ const LOG = join(ROOT, "data", "pin-reports.json");
 const args = process.argv.slice(2);
 const arg = (n) => (args.includes(n) ? args[args.indexOf(n) + 1] : undefined);
 const dryRun = args.includes("--dry-run");
-const repo = process.env.GITHUB_REPOSITORY ?? "lordgrim336-pixel/pagmamahal";
+
 
 export const RULES = { townTolKm: 0.3, brgyTolKm: 0.3, cooldownDays: 30, maxAutoPerDay: 30, duplicateKm: 0.05 };
 
@@ -44,8 +45,7 @@ const readJson = async (p, fallback) => (existsSync(p) ? JSON.parse(await readFi
 async function loadListings() {
   const src = arg("--listings") ?? process.env.LISTINGS_URL;
   if (src && !/^https?:/.test(src)) return JSON.parse(await readFile(src, "utf8"));
-  const [owner, name] = repo.split("/");
-  const url = src ?? `https://${owner.toLowerCase()}.github.io/${name}/data/listings.json`;
+  const url = src ?? `${SITE.url}/data/listings.json`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Couldn't load listings from ${url}: ${res.status}`);
   return res.json();
@@ -145,7 +145,10 @@ async function main() {
   console.log(`Processed ${files.length} report(s); ${applied} applied.`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Run only when started directly (not when imported by the tests).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

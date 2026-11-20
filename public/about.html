@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About, privacy and disclaimer · Pagmamahal Maps</title>
+  <meta name="description" content="About Pagmamahal Maps: where the data comes from, how accurate the pins are, privacy, and disclaimer." />
+  <meta name="theme-color" content="#0f5f5c" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body { display: block; }
+    .doc { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+    .doc h1 { font-size: 26px; margin: 0 0 4px; }
+    .doc h2 { font-size: 19px; margin: 28px 0 8px; }
+    .doc p, .doc li { line-height: 1.6; }
+    .doc table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    .doc th, .doc td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .callout { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" style="text-decoration:none;color:inherit">
+      <img src="icons/icon.svg" alt="" width="28" height="28" />
+      <div><h1 style="font-size:18px">Pagmamahal Maps</h1><p class="sub">Back to the map</p></div>
+    </a>
+  </header>
+
+  <main class="doc">
+    <h1>About Pagmamahal Maps</h1>
+    <p class="muted">Last updated November 20, 2026</p>
+
+    <div class="callout">
+      <strong>Not affiliated with Pag-IBIG Fund.</strong> Pagmamahal Maps is an independent, free website.
+      It is not run, endorsed or checked by the Home Development Mutual Fund (Pag-IBIG Fund) or any
+      government agency. To bid or buy, always use Pag-IBIG's official
+      <a href="https://www.pagibigfundservices.com/OnlinePublicAuction/" target="_blank" rel="noopener">Online Public Auction</a>.
+    </div>
+
+    <h2>What this site does</h2>
+    <p>It shows Pag-IBIG's publicly listed acquired properties on one map, with search and filters,
+      and offers a housing-loan calculator based on Pag-IBIG's published rates. Listings are refreshed
+      once a day. Pag-IBIG auctions are sealed-bid, so only the minimum bid price is shown.</p>
+
+    <h2>Where the data comes from</h2>
+    <table>
+      <tr><th>Data</th><th>Source</th></tr>
+      <tr><td>Property listings and minimum prices</td><td>Pag-IBIG Fund's public Online Public Auction pages</td></tr>
+      <tr><td>Loan rates and rules</td><td><a href="https://pagibigfund.gov.ph/Availmentofnewloan.html" target="_blank" rel="noopener">pagibigfund.gov.ph</a></td></tr>
+      <tr><td>Map background</td><td>OpenFreeMap, OpenMapTiles, © OpenStreetMap contributors (ODbL)</td></tr>
+      <tr><td>Subdivision and building locations</td><td>OpenStreetMap (ODbL); Overture Maps Foundation, with data from Meta, Microsoft, Foursquare and others (CDLA-Permissive-2.0, Apache-2.0)</td></tr>
+      <tr><td>Barangay and town boundaries</td><td>NAMRIA, PSA and OCHA, via faeldon/philippines-json-maps (CC BY-IGO)</td></tr>
+    </table>
+    <p>The map's pin locations include data from OpenStreetMap and are shared under the
+      <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener">Open Database License</a>.</p>
+
+    <h2>How accurate are the pins?</h2>
+    <p>About a third of listings have a GPS reading from Pag-IBIG; those pins are exact. The rest are placed
+      from the address: by other listings in the same subdivision, by the subdivision's location on open maps
+      (usually within about 0.2–0.5 km), or by the barangay (within about 1–2 km). Each property shows how its
+      pin was placed, with a shaded circle for approximate pins. You can fix a wrong pin with
+      <strong>Pin in the wrong place?</strong>; corrections are checked automatically and by review before they appear.</p>
+
+    <h2>Disclaimer</h2>
+    <ul>
+      <li>Listings, prices, dates and occupancy can change at any time. <strong>Always confirm every detail with Pag-IBIG
+        Fund</strong> before making any decision or bid.</li>
+      <li>The loan calculator gives <strong>estimates only</strong>. It leaves out insurance and fees, and Pag-IBIG decides
+        the actual loan amount, rate and terms. It is not financial advice.</li>
+      <li>Map pins may be approximate. Visit the property before bidding.</li>
+      <li>The site is provided as is, free of charge, without any warranty.</li>
+    </ul>
+
+    <h2>Privacy</h2>
+    <p>Pagmamahal Maps has no accounts, no ads and no tracking cookies. In line with the Philippine Data Privacy
+      Act of 2012 (Republic Act No. 10173), here is everything that is processed:</p>
+    <table>
+      <tr><th>When</th><th>What</th><th>Why, and who</th></tr>
+      <tr><td>Visiting the site</td><td>Standard web request data such as IP address and browser type</td>
+        <td>Needed to deliver the pages and map. Handled by our hosting (Cloudflare) and map providers
+          (OpenFreeMap, jsDelivr, cdnjs) under their own privacy policies. We don't keep these logs.</td></tr>
+      <tr><td>Your phone or browser</td><td>A copy of the app and listings</td>
+        <td>Lets the app open faster and work offline. Stored only on your device; clear it with your browser settings.</td></tr>
+      <tr><td>Reporting a wrong pin</td><td>The property ID, the spot you tapped, whether it applies to the whole building,
+          the time, and a scrambled visitor code</td>
+        <td>To check and apply the correction. The visitor code is a one-way scrambled value used only to spot repeat
+          reports; your IP address itself is never stored by us. Reports are kept in the project's public GitHub
+          repository so fixes can be reviewed and undone.</td></tr>
+      <tr><td>Bot check when reporting</td><td>Browser signals and IP address</td>
+        <td>Cloudflare Turnstile uses these to tell people from bots, under
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</td></tr>
+    </table>
+    <p>Reports don't include your name, email or phone number, so we can't identify you from them. To ask about
+      or remove a report, open an issue on the project's
+      <a href="https://github.com/lordgrim336-pixel/pagmamahal/issues" target="_blank" rel="noopener">GitHub page</a>
+      with the property ID and the date you reported.</p>
+
+    <h2>Open source</h2>
+    <p>The code is public on <a href="https://github.com/lordgrim336-pixel/pagmamahal" target="_blank" rel="noopener">GitHub</a>.</p>
+  </main>
+</body>
+</html>

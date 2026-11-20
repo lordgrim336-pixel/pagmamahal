@@ -22,9 +22,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadAdminAreas, contains } from "./lib/admin-areas.mjs";
 import { km } from "./lib/overture-match.mjs";
+import { SITE } from "../public/js/config.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OVERRIDES = join(ROOT, "data", "location-overrides.json");
@@ -97,7 +98,7 @@ async function gh(method, path, body) {
 async function loadListings() {
   const src = arg("--listings") ?? process.env.LISTINGS_URL;
   if (src && !/^https?:/.test(src)) return JSON.parse(await readFile(src, "utf8"));
-  const url = src ?? `https://${repo.split("/")[0].toLowerCase()}.github.io/${repo.split("/")[1]}/data/listings.json`;
+  const url = src ?? `${SITE.url}/data/listings.json`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Couldn't load listings from ${url}: ${res.status}`);
   return res.json();
@@ -242,7 +243,10 @@ async function main() {
   if (process.env.GITHUB_OUTPUT) await writeFile(process.env.GITHUB_OUTPUT, `changed=${changed}\naction=${d.action}\n`, { flag: "a" });
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Run only when started directly (not when imported by the tests).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

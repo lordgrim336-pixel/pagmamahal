@@ -14,6 +14,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { locateAll } from "./lib/locate.mjs";
+import { SITE } from "../public/js/config.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -107,6 +108,30 @@ async function runPool(items, worker) {
   await Promise.all(lanes);
 }
 
+// Safety check before publishing: if Pag-IBIG's site is down, in maintenance or
+// only half answering, keep yesterday's data instead of publishing a broken map.
+// Override with --force (e.g. when listings really did drop a lot).
+async function checkLooksComplete(count, citiesSearched, citiesFailed) {
+  const problems = [];
+  if (!citiesSearched) problems.push("Pag-IBIG returned no cities to search");
+  if (citiesSearched && citiesFailed / citiesSearched > 0.05)
+    problems.push(`${citiesFailed} of ${citiesSearched} city searches failed (more than 5%)`);
+  try {
+    const res = await fetch(`${SITE.url}/data/listings.json`, { cache: "no-store" });
+    if (res.ok) {
+      const prev = await res.json();
+      if (prev.count && count < prev.count * 0.7)
+        problems.push(`only ${count} listings found, versus ${prev.count} last time (a drop of more than 30%)`);
+    }
+  } catch {
+    console.warn("  (couldn't read the published listings to compare; skipping that check)");
+  }
+  if (problems.length && !args.includes("--force")) {
+    throw new Error(`Not publishing, the data looks incomplete: ${problems.join("; ")}. ` +
+      "The site keeps yesterday's listings. Run with --force if this is expected.");
+  }
+}
+
 async function main() {
   const started = Date.now();
   let regions = await locations(1);
@@ -149,6 +174,7 @@ async function main() {
   });
 
   const properties = [...byId.values()];
+  if (!regionFilter && cityLimit === Infinity) await checkLooksComplete(properties.length, work.length, failed);
   const save = async () => {
     const out = {
       generatedAt: new Date().toISOString(),

@@ -1,0 +1,15 @@
+# Security headers for Cloudflare Pages (https://developers.cloudflare.com/pages/configuration/headers/).
+# The Content-Security-Policy lists every outside source the app uses:
+#   cdnjs / jsDelivr          map libraries (pinned with integrity hashes)
+#   tiles.openfreemap.org     map background, fonts and icons for the map
+#   *.tile.openstreetmap.org  fallback map for phones without WebGL
+#   challenges.cloudflare.com bot check for "Pin in the wrong place?"
+#   *.workers.dev relay       where reports are sent
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://cdnjs.cloudflare.com https://tiles.openfreemap.org https://*.tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' https://tiles.openfreemap.org https://pagmamahal-reports.lord-grim336.workers.dev https://challenges.cloudflare.com; worker-src 'self' blob:; child-src blob: https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=()
+
+/data/*
+  Cache-Control: public, max-age=600

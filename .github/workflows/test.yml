@@ -1,0 +1,27 @@
+# Runs the automated tests (tests/*.test.mjs) on every change and pull request,
+# including the daily Claude review's pull requests. Free for public repositories.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["data/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Check data files are valid JSON
+        run: node -e "for (const f of ['data/location-overrides.json','data/pin-reports.json']) { try { JSON.parse(require('fs').readFileSync(f,'utf8')); console.log('ok', f); } catch (e) { console.error('Invalid JSON in', f, e.message); process.exit(1); } }"

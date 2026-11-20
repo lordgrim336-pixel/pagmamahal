@@ -36,7 +36,7 @@ There are two queues:
 2. Set up data:
    - Run `npm ci` and `npm run update-boundaries`.
    - Run `npm run update-overture` only if you need it.
-   - Download the live listings from `https://lordgrim336-pixel.github.io/pagmamahal/data/listings.json`.
+   - Download the live listings from `https://pagmamahal-maps.pages.dev/data/listings.json`.
 3. For each report, weigh the evidence:
    - Is the reported spot inside the property's town and barangay (`scripts/lib/admin-areas.mjs`)?
    - How far is it from the current pin, and how was that pin placed (`currentSource`)?

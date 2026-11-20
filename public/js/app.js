@@ -1,5 +1,5 @@
 import { LOAN_RULES, calculate } from "./loan-rules.js";
-import { REPORT } from "./config.js";
+import { REPORT, MAP } from "./config.js";
 
 const OPA_URL = "https://www.pagibigfundservices.com/OnlinePublicAuction/";
 const PAGE_SIZE = 60;
@@ -46,14 +46,24 @@ function setView(view) {
 document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => setView(b.dataset.view)));
 
 // ---------------------------------------------------------------- map
-const map = L.map("map", { zoomControl: true, preferCanvas: false }).setView([12.5, 122], 6);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · ' +
-    '<a href="https://docs.overturemaps.org/attribution/" title="Overture Maps Foundation; data from Meta, Microsoft, Foursquare and others">© Overture Maps</a> · ' +
-    '<span title="Barangay boundaries: NAMRIA, PSA, OCHA (CC BY-IGO)">NAMRIA/PSA/OCHA</span>',
-}).addTo(map);
+const map = L.map("map", { zoomControl: true, preferCanvas: false, maxZoom: 19 }).setView([12.5, 122], 6);
+// Map background: OpenFreeMap vector tiles drawn by MapLibre inside Leaflet.
+// If MapLibre can't start (very old phone/browser without WebGL), fall back to a
+// plain raster layer so the map still shows.
+const hasWebGL = () => {
+  try {
+    const c = document.createElement("canvas");
+    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch {
+    return false;
+  }
+};
+try {
+  if (!L.maplibreGL || !window.maplibregl || !hasWebGL()) throw new Error("no WebGL");
+  L.maplibreGL({ style: MAP.style, attribution: MAP.attribution }).addTo(map);
+} catch {
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: MAP.attribution }).addTo(map);
+}
 const cluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 50, chunkedLoading: true });
 map.addLayer(cluster);
 const markers = new Map();
@@ -510,6 +520,15 @@ const c = {
 };
 $("#rulesLink").href = LOAN_RULES.sourceUrl;
 $("#ratesUntil").textContent = new Date(LOAN_RULES.ratesValidUntil).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
+// Warn visitors if the published rates have passed their valid-until date and
+// haven't been updated in public/js/loan-rules.js yet.
+if (new Date() > new Date(`${LOAN_RULES.ratesValidUntil}T23:59:59+08:00`)) {
+  $("#calcFor").insertAdjacentHTML(
+    "beforebegin",
+    `<p class="note warn">⚠️ These rates were valid until ${esc($("#ratesUntil").textContent)} and may be out of date.
+      Check the current rates on <a href="${LOAN_RULES.sourceUrl}" target="_blank" rel="noopener">Pag-IBIG's website</a>.</p>`,
+  );
+}
 c.share.value = LOAN_RULES.assumptions.incomeShareForPayment;
 c.ltv.value = LOAN_RULES.assumptions.loanToValue;
 

@@ -27,7 +27,7 @@ Run these from this `relay` folder.
    ```
    Put the printed `id` into `wrangler.toml` and uncomment the `[[kv_namespaces]]` block.
 4. **Turnstile widget:** in the Cloudflare dashboard, open **Turnstile → Add
-   widget**. Name it "Pagmamahal", add the hostname `lordgrim336-pixel.github.io`,
+   widget**. Name it "Pagmamahal", add the hostname `pagmamahal-maps.pages.dev`,
    and keep the "Managed" mode. Copy the **site key** into `public/js/config.js`
    (`turnstileSiteKey`). The **secret key** goes in step 6.
 5. **GitHub key for saving reports:** at https://github.com/settings/personal-access-tokens/new

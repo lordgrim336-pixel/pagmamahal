@@ -1,9 +1,12 @@
-# Pagmamahal
+# Pagmamahal Maps
 
-A web app (that also installs on phones) for browsing Pag-IBIG Fund acquired
-properties on a map, with a Pag-IBIG housing loan calculator.
+**Live at https://pagmamahal-maps.pages.dev**
 
-Not affiliated with Pag-IBIG Fund.
+A free web app (that also installs on phones) for browsing Pag-IBIG Fund
+acquired properties on a map, with a Pag-IBIG housing loan calculator.
+
+Not affiliated with Pag-IBIG Fund. See the site's
+[About, privacy & disclaimer](https://pagmamahal-maps.pages.dev/about) page.
 
 ## What it does
 
@@ -104,18 +107,30 @@ npm start
 
 Then open http://localhost:5173.
 
-## Hosting on GitHub (free)
+## Hosting (free)
 
-Everything below is free for **public** repositories: hosting (GitHub Pages),
-the daily refresh and report checks (GitHub Actions). Users need a free GitHub
-account only to report a wrong pin.
+| Piece | Where | Cost |
+| --- | --- | --- |
+| Website | Cloudflare Pages, project `pagmamahal-maps` → https://pagmamahal-maps.pages.dev | free plan |
+| Daily data refresh, report checks, tests | GitHub Actions in this public repo | free for public repos |
+| Report relay and bot check | Cloudflare Worker `pagmamahal-reports` + Turnstile (`relay/`) | free plan |
+| Daily Claude review | Claude routine "Daily pin review" | included in a Claude Pro plan |
+| Old address `lordgrim336-pixel.github.io/pagmamahal` | GitHub Pages, redirects to the new address | free |
 
-1. Create a new **public** repository on GitHub, without a README.
-2. Push this folder to it.
-3. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. **Actions → Publish site → Run workflow**. The first run takes about 10 minutes.
-   The site appears at `https://<your-username>.github.io/<repo-name>/`. After
-   that it refreshes daily at 05:17 Philippine time.
+**Publish site** (`.github/workflows/publish.yml`) runs daily at 05:17
+Philippine time, and after every pin fix or code change. It collects the
+listings, places the pins and publishes `public/` to Cloudflare Pages. It needs
+one repository secret, `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with
+**Cloudflare Pages: Edit** permission.
+
+**Safety:** if Pag-IBIG's site is down, more than 5% of city searches fail, or
+listings drop by more than 30% compared with the published site, the run stops
+and the site keeps yesterday's data. GitHub emails you about the failed run.
+Run `npm run fetch -- --force` if a big drop is real.
+
+All site settings (address, map style, report relay) live in one file,
+`public/js/config.js`. The relay keeps its own allowed-address list in
+`relay/wrangler.toml`.
 
 ### How wrong-pin reports are handled
 
@@ -152,7 +167,17 @@ Every fix is a normal commit, so a bad one can be reverted from GitHub's history
 See `relay/README.md`. Until the relay is set up (`endpoint` in
 `public/js/config.js` is empty), **Send** falls back to the GitHub issue form.
 
-## Putting it online elsewhere
+## Tests
+
+```powershell
+npm test
+```
+
+These cover the loan math, the automatic pin-report rules and address parsing.
+`.github/workflows/test.yml` runs them on every change and pull request,
+including the daily Claude review's pull requests.
+
+## Putting it online elsewhere (optional)
 
 The app in `public/` is plain HTML, CSS and JavaScript with no build step. Any
 static host works (Netlify, Cloudflare Pages, GitHub Pages, Vercel): publish the
@@ -199,8 +224,16 @@ Estimates leave out insurance (MRI/SRI and fire insurance) and fees.
 | `scripts/update-overture.mjs`, `scripts/update-boundaries.mjs` | Download the open map data |
 | `data/location-overrides.json` | Your manual pin corrections |
 | `data/overture/`, `data/boundaries/` | Downloaded open map data |
-| `public/js/config.js` | Where "wrong pin" reports go |
-| `reports/`, `research_notes/` | Research on free location sources |
+| `public/js/config.js` | All site settings: address, map style, report relay |
+| `public/about.html` | About, privacy and disclaimer page |
+| `public/_headers` | Security headers for Cloudflare Pages |
+| `public/icons/` | Logo, phone icons and link-preview image (`npm run icons` re-renders the PNGs) |
+| `relay/` | Cloudflare Worker that receives "wrong pin" reports |
+| `scripts/process-inbox.mjs`, `scripts/review-report.mjs` | Check pin reports from the app and from GitHub |
+| `tests/` | Automated tests |
+| `docs/daily-pin-review.md` | Instructions for the daily Claude review |
+| `docs/LAUNCH-REPORT.md` | Status report, costs and launch plan |
+| `docs/research/` | Research on free location sources |
 | `scripts/serve.mjs` | Small local web server |
 | `public/index.html` | The app page |
 | `public/js/app.js` | Map, list, details and calculator screens |
