@@ -1,6 +1,6 @@
 // Offline support: the app shell is cached; listings are fetched fresh when online
 // and fall back to the last copy when offline.
-const CACHE = "pagmamahal-v3";
+const CACHE = "pagmamahal-v4";
 const SHELL = ["./", "index.html", "css/styles.css", "js/app.js", "js/loan-rules.js", "js/config.js", "icons/icon.svg", "manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

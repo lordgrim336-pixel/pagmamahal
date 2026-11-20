@@ -421,12 +421,22 @@ function loadTurnstile() {
 }
 async function botCheckToken() {
   await loadTurnstile();
+  // Start a fresh check every time Send is pressed (a token works only once).
+  if (reporting.widget != null) {
+    window.turnstile.remove(reporting.widget);
+    reporting.widget = null;
+  }
   return new Promise((resolve, reject) => {
     reporting.widget = window.turnstile.render("#reportCheck", {
       sitekey: REPORT.turnstileSiteKey,
       appearance: "interaction-only",
       callback: resolve,
-      "error-callback": () => reject(new Error("The bot check failed. Please try again.")),
+      "error-callback": () => {
+        reject(new Error("The bot check couldn't confirm you're human. Please press Send again."));
+        return true; // we've handled it
+      },
+      "expired-callback": () => reject(new Error("The check expired. Please press Send again.")),
+      "timeout-callback": () => reject(new Error("The check timed out. Please press Send again.")),
     });
   });
 }
