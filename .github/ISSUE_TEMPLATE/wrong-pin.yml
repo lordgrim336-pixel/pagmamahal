@@ -1,0 +1,39 @@
+name: Pin in the wrong place
+description: Tell us where a property really is. Reports are checked automatically, usually within a few minutes.
+title: "Wrong pin: "
+labels: ["wrong-pin"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make the map accurate! If you came from the app, the fields below are already filled in. Just press **Submit new issue**.
+
+        Please only report places you know. Don't copy coordinates from Google Maps: its terms don't allow that. Your own knowledge, a visit, or OpenStreetMap is fine.
+  - type: input
+    id: property_id
+    attributes:
+      label: Property ID
+      description: Shown in the property's details in the app, e.g. 864202607150003
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Correct location (latitude, longitude)
+      description: e.g. 10.31602, 123.884175. An OpenStreetMap link with the spot also works.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Does this fix only this unit, or the whole building or subdivision?
+      options:
+        - Only this property
+        - The whole building / subdivision
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else? (optional)
+      description: e.g. "Tower 1 is the building at the corner of V. Rama Ave."

@@ -1,0 +1,69 @@
+# Checks every "Pin in the wrong place" report (issue form .github/ISSUE_TEMPLATE/wrong-pin.yml).
+# Safe fixes are applied right away; the rest get the "needs-review" label for
+# you or the weekly Claude review. A maintainer adding the "approved" label
+# applies a report. Free for public repositories.
+#
+# Security: the issue text is untrusted. It is never put into a shell command;
+# scripts/review-report.mjs reads it from the event file and only extracts a
+# property ID and two numbers.
+name: Check pin report
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write # save the fix to data/location-overrides.json
+  issues: write # comment, label, close
+  actions: write # republish the site after a fix
+
+concurrency:
+  group: pin-reports # one at a time, so fixes never overwrite each other
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: contains(github.event.issue.labels.*.name, 'wrong-pin')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Restore boundaries
+        id: bounds
+        uses: actions/cache@v4
+        with:
+          path: data/boundaries/src
+          key: boundaries-v1
+
+      - name: Download boundaries
+        if: steps.bounds.outputs.cache-hit != 'true'
+        run: npm run update-boundaries
+
+      - name: Check the report
+        id: review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/review-report.mjs
+
+      - name: Save the fix
+        if: steps.review.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/location-overrides.json data/pin-reports.json
+          git commit -m "Pin report #${{ github.event.issue.number }}: ${{ steps.review.outputs.action }}"
+          for i in 1 2 3; do git pull --rebase && git push && break; sleep 5; done
+
+      - name: Republish the map
+        if: steps.review.outputs.action == 'apply'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run publish.yml --ref main

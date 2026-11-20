@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pagmamahal</title>
+  <meta name="description" content="Map of Pag-IBIG acquired properties for auction, with a housing loan calculator." />
+  <meta name="theme-color" content="#0f5f5c" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" width="28" height="28" />
+      <div>
+        <h1>Pagmamahal</h1>
+        <p class="sub">Pag-IBIG acquired properties on a map</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-view="map" aria-selected="true">Map</button>
+      <button role="tab" data-view="list" aria-selected="false">List</button>
+      <button role="tab" data-view="calc" aria-selected="false">Loan calculator</button>
+    </nav>
+  </header>
+
+  <main class="layout" data-view="map">
+    <aside class="panel list-panel">
+      <form class="filters" id="filters" autocomplete="off">
+        <input type="search" id="q" placeholder="Search town, subdivision, address…" aria-label="Search" />
+        <div class="loc" aria-label="Location">
+          <select id="region" aria-label="Region"><option value="">All regions</option></select>
+          <div class="row">
+            <select id="province" aria-label="Province" disabled><option value="">All provinces</option></select>
+            <select id="city" aria-label="City or municipality" disabled><option value="">All cities</option></select>
+          </div>
+        </div>
+        <div class="chips" id="saleChips" aria-label="Sale type">
+          <label><input type="checkbox" value="1" checked /> 1st auction</label>
+          <label><input type="checkbox" value="2" checked /> 2nd auction</label>
+          <label><input type="checkbox" value="3" checked /> Negotiated</label>
+        </div>
+        <div class="row">
+          <select id="type" aria-label="Property type"><option value="">All types</option></select>
+          <select id="occ" aria-label="Occupancy">
+            <option value="">Any occupancy</option>
+            <option value="Unoccupied">Unoccupied</option>
+            <option value="Occupied">Occupied</option>
+          </select>
+        </div>
+        <div class="row">
+          <label class="inline">Max price
+            <select id="maxPrice">
+              <option value="">Any</option>
+              <option value="500000">₱500K</option>
+              <option value="1000000">₱1M</option>
+              <option value="2000000">₱2M</option>
+              <option value="3000000">₱3M</option>
+              <option value="5000000">₱5M</option>
+              <option value="10000000">₱10M</option>
+            </select>
+          </label>
+          <label class="inline check"><input type="checkbox" id="openNow" /> Bidding open now</label>
+        </div>
+        <div class="row">
+          <label class="inline">Sort
+            <select id="sort">
+              <option value="price">Lowest price</option>
+              <option value="-price">Highest price</option>
+              <option value="end">Bidding ends soonest</option>
+              <option value="area">Largest floor area</option>
+            </select>
+          </label>
+          <span class="count" id="count">Loading…</span>
+        </div>
+      </form>
+      <ul class="results" id="results" aria-live="polite"></ul>
+    </aside>
+
+    <section class="map-wrap">
+      <div id="map" aria-label="Map of properties"></div>
+      <div class="report-bar" id="reportBar" hidden role="status"></div>
+      <div class="legend">
+        <span><i class="dot exact"></i> Exact GPS</span>
+        <span><i class="dot approx"></i> Approximate (open a pin to see how close)</span>
+      </div>
+    </section>
+
+    <section class="panel calc-panel" id="calc">
+      <h2>Pag-IBIG housing loan calculator</h2>
+      <p class="muted" id="calcFor">Estimate your loan and monthly payment. Tap “Compute loan” on any property to fill in its price.</p>
+      <form id="calcForm" class="calc-grid" autocomplete="off">
+        <label>Property price (₱)
+          <input type="number" id="cPrice" min="0" step="1000" value="1500000" inputmode="numeric" />
+        </label>
+        <label>Down payment <output id="oDown"></output>
+          <input type="range" id="cDown" min="0" max="80" step="1" value="10" />
+        </label>
+        <label>Gross monthly income, incl. up to 2 co-borrowers (₱)
+          <input type="number" id="cIncome" min="0" step="500" value="40000" inputmode="numeric" />
+        </label>
+        <label>Your age
+          <input type="number" id="cAge" min="18" max="65" value="30" inputmode="numeric" />
+        </label>
+        <label>Loan term <output id="oTerm"></output>
+          <input type="range" id="cTerm" min="1" max="30" step="1" value="30" />
+        </label>
+        <label>Interest plan
+          <select id="cPlan"></select>
+        </label>
+        <label id="afterPromoWrap">Assumed rate after the 3-year promo
+          <select id="cAfter"></select>
+        </label>
+        <details class="assumptions">
+          <summary>Assumptions you can adjust</summary>
+          <label>Share of income for payments <output id="oShare"></output>
+            <input type="range" id="cShare" min="20" max="50" step="1" value="35" />
+          </label>
+          <label>Loan-to-value limit <output id="oLtv"></output>
+            <input type="range" id="cLtv" min="50" max="100" step="5" value="90" />
+          </label>
+          <p class="muted small">These two limits aren't published on Pag-IBIG's loan page. Pag-IBIG decides the real values when it appraises your loan.</p>
+        </details>
+      </form>
+
+      <div class="calc-out" id="calcOut"></div>
+
+      <h3>Compare interest plans</h3>
+      <div class="table-wrap"><table class="compare" id="compare"></table></div>
+
+      <p class="muted small">
+        Rates are taken from <a id="rulesLink" target="_blank" rel="noopener">Pag-IBIG's Regular Housing Loan page</a>
+        (valid until <span id="ratesUntil"></span>). Requirements: at least 24 monthly contributions, age 65 or under when applying, and 70 or under when the loan ends.
+        Results are estimates only. They leave out insurance (MRI/SRI and fire insurance) and fees, so your actual amortization
+        will be a little higher.
+      </p>
+    </section>
+  </main>
+
+  <div class="sheet" id="sheet" hidden>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <button class="close" id="sheetClose" aria-label="Close">×</button>
+      <div id="sheetBody"></div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Not affiliated with Pag-IBIG Fund. Data updated <span id="updated">—</span><span class="long">
+    from the Pag-IBIG Online Public Auction. Bids are sealed, so only the minimum price is public. Always confirm details on the official site</span>.
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

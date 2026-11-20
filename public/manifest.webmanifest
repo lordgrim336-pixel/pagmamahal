@@ -1,0 +1,13 @@
+{
+  "name": "Pagmamahal: Pag-IBIG Property Map",
+  "short_name": "Pagmamahal",
+  "description": "Map of Pag-IBIG acquired properties for auction, with a housing loan calculator.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f4ef",
+  "theme_color": "#0f5f5c",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
