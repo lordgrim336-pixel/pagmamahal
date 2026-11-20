@@ -242,3 +242,10 @@ Estimates leave out insurance (MRI/SRI and fire insurance) and fees.
 | `public/sw.js`, `public/manifest.webmanifest` | Offline support and phone install |
 | `public/data/listings.json` | Collected listings (generated) |
 | `data/geocode-cache.json` | Saved approximate locations (generated) |
+
+## License
+
+The code is released under the [MIT License](LICENSE), © 2026 Pagmamahal Maps
+(https://github.com/lordgrim336-pixel/pagmamahal). It covers the code only: the
+listings belong to Pag-IBIG Fund, and the map and location data keep their own
+licenses (see the [About page](https://pagmamahal-maps.pages.dev/about)).

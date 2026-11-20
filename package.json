@@ -3,6 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "description": "Map of Pag-IBIG acquired properties for auction, with a housing loan calculator.",
+  "license": "MIT",
+  "author": "Pagmamahal Maps (https://github.com/lordgrim336-pixel/pagmamahal)",
+  "homepage": "https://pagmamahal-maps.pages.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lordgrim336-pixel/pagmamahal.git"
+  },
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",
