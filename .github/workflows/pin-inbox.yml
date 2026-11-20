@@ -1,0 +1,80 @@
+# Processes "Pin in the wrong place?" reports sent from the app (no sign-in).
+# The relay saves each report as data/inbox/<id>.json; this checks it with
+# scripts/process-inbox.mjs, applies clear-cut fixes, and queues the rest
+# (status "pending" in data/pin-reports.json) for the daily Claude review.
+# Free for public repositories.
+name: Process pin reports
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/inbox/**"]
+  schedule:
+    - cron: "43 * * * *" # hourly safety net, in case a run was missed
+  workflow_dispatch:
+
+permissions:
+  contents: write # move reports out of the inbox, save fixes
+  actions: write # republish the site after a fix
+
+concurrency:
+  group: pin-reports # one at a time (shared with the GitHub-issue checker)
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Anything in the inbox?
+        id: inbox
+        run: |
+          if ls data/inbox/*.json >/dev/null 2>&1; then echo "has=true" >> "$GITHUB_OUTPUT"; else echo "Inbox empty."; fi
+
+      - uses: actions/setup-node@v4
+        if: steps.inbox.outputs.has == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: steps.inbox.outputs.has == 'true'
+        run: npm ci
+
+      - name: Restore boundaries
+        if: steps.inbox.outputs.has == 'true'
+        id: bounds
+        uses: actions/cache@v4
+        with:
+          path: data/boundaries/src
+          key: boundaries-v1
+
+      - name: Download boundaries
+        if: steps.inbox.outputs.has == 'true' && steps.bounds.outputs.cache-hit != 'true'
+        run: npm run update-boundaries
+
+      - name: Check the reports
+        if: steps.inbox.outputs.has == 'true'
+        id: review
+        run: node scripts/process-inbox.mjs
+
+      - name: Save
+        if: steps.review.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A data/inbox data/pin-reports.json data/location-overrides.json
+          git commit -m "Process pin reports (${{ steps.review.outputs.applied }} applied)"
+          ok=0
+          for i in 1 2 3; do
+            if git pull --rebase --autostash && git push; then ok=1; break; fi
+            sleep 5
+          done
+          [ "$ok" = 1 ] || { echo "::error::Couldn't save the reports"; exit 1; }
+
+      - name: Republish the map
+        if: steps.review.outputs.applied != '' && steps.review.outputs.applied != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run publish.yml --ref main
