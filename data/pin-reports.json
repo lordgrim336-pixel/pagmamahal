@@ -49,5 +49,30 @@
     ],
     "at": "2026-11-20T05:42:09Z",
     "reviewedBy": "setup"
+  },
+  {
+    "id": "20261120074822-b5f8a4a6",
+    "source": "app",
+    "propertyId": "864202608240004",
+    "subdivision": "URBAN DECA HOMES BANILAD",
+    "city": "MANDAUE CITY",
+    "address": "Unit 834 8th Flr. TOWER 03 URBAN DECA HOMES BANILAD BANILAD, MANDAUE CITY, CEBU, 6014",
+    "currentPin": [
+      10.3395356,
+      123.9184709
+    ],
+    "currentSource": "osm",
+    "coords": [
+      10.339251,
+      123.91858
+    ],
+    "wholeSubdivision": false,
+    "note": "",
+    "visitor": "6f8d948c2ee2fbe7033d331c",
+    "status": "applied",
+    "reasons": [
+      "Inside Barangay Banilad, City of Mandaue."
+    ],
+    "at": "2026-11-20T07:48:22.360Z"
   }
 ]
