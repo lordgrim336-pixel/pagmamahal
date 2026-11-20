@@ -139,7 +139,7 @@ Then open http://localhost:5173.
 | Website | Cloudflare Pages, project `pagmamahal-maps` → https://pagmamahal-maps.pages.dev | free plan |
 | Daily data refresh, report checks, tests | GitHub Actions in this public repo | free for public repos |
 | Report relay and bot check | Cloudflare Worker `pagmamahal-reports` + Turnstile (`relay/`) | free plan |
-| Daily Claude review | Claude routine "Daily pin review" | included in a Claude Pro plan |
+| Weekly Claude review | Claude routine "Weekly pin review" | included in a Claude Pro plan |
 | Old address `lordgrim336-pixel.github.io/pagmamahal` | GitHub Pages, redirects to the new address | free |
 
 **Publish site** (`.github/workflows/publish.yml`) runs daily at 05:17
@@ -175,9 +175,9 @@ All site settings (address, map style, report relay) live in one file,
    - fewer than 30 automatic fixes were made today.
 
    Anything else is marked `pending` in `data/pin-reports.json`.
-3. **Daily Claude review:** a scheduled Claude routine runs every day at 9:00 AM
+3. **Weekly Claude review:** a scheduled Claude routine runs every Sunday at 9:00 AM
    Philippine time, on your Claude plan with no extra charge. It follows
-   `docs/daily-pin-review.md`. If nothing is pending it stops right away.
+   `docs/pin-review.md`. It first runs `scripts/review-queue.mjs`; if nothing is pending it stops right away.
    Otherwise it weighs the evidence (boundaries, Overture, OpenStreetMap, other
    reports) and opens one pull request with its decisions. GitHub notifies you;
    merging the PR applies the fixes and republishes the map.
@@ -200,7 +200,7 @@ npm test
 
 These cover the loan math, the automatic pin-report rules and address parsing.
 `.github/workflows/test.yml` runs them on every change and pull request,
-including the daily Claude review's pull requests.
+including the weekly Claude review's pull requests.
 
 ## Putting it online elsewhere (optional)
 
@@ -256,7 +256,7 @@ Estimates leave out insurance (MRI/SRI and fire insurance) and fees.
 | `relay/` | Cloudflare Worker that receives "wrong pin" reports |
 | `scripts/process-inbox.mjs`, `scripts/review-report.mjs` | Check pin reports from the app and from GitHub |
 | `tests/` | Automated tests |
-| `docs/daily-pin-review.md` | Instructions for the daily Claude review |
+| `docs/pin-review.md` | Instructions for the weekly Claude review |
 | `docs/LAUNCH-REPORT.md` | Status report, costs and launch plan |
 | `docs/research/` | Research on free location sources |
 | `scripts/photos.mjs` | Finds Pag-IBIG's photos and makes the small thumbnails |

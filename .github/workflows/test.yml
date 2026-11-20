@@ -1,5 +1,5 @@
 # Runs the automated tests (tests/*.test.mjs) on every change and pull request,
-# including the daily Claude review's pull requests. Free for public repositories.
+# including the weekly Claude review's pull requests. Free for public repositories.
 name: Tests
 
 on:

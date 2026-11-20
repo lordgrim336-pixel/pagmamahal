@@ -23,8 +23,10 @@ way for visitors to fix wrong map pins. It's live today at
 
 **Running it costs $0 a month,** and stays at $0 even when public, as long as it
 remains a free, non-commercial site within the free tiers below. The only "cost"
-is the daily Claude review, which uses part of your existing Claude Pro plan's
-usage. That's worth about **$1–30 a month** at API prices, but it isn't billed.
+is the weekly Claude review, which uses part of your existing Claude Pro plan's
+usage. That's worth about **$0.10–5 a month** at API prices, but it isn't billed.
+(It was daily until Nov 20, 2026; it's now weekly and checks the queue before
+reading anything else.)
 
 Before a public launch, nine pieces of work are recommended (section 8). Three
 of them matter most:
@@ -46,7 +48,7 @@ of them matter most:
 | **Search and filters** | Text search (address, subdivision, barangay, ID); Region → Province → City (each optional, with counts); sale type; property type; occupancy; max price; "bidding open now"; sorting |
 | **Property details** | Minimum bid, bidding dates, areas, occupancy, remarks, barangay, handling office; buttons for Pag-IBIG's site, Google Maps and the loan calculator; an explanation of how the pin was placed and how precise it is (accuracy circle) |
 | **Loan calculator** | Uses Pag-IBIG's published rules: rates valid until **Dec 31, 2026**, ₱10M cap, 30-year term, loan must end by age 70. Adjustable price, down payment, income, age and term; compares every interest plan |
-| **"Pin in the wrong place?"** | One tap, no sign-in, invisible bot check. Clear fixes go live within minutes; the rest get a daily Claude review |
+| **"Pin in the wrong place?"** | One tap, no sign-in, invisible bot check. Clear fixes go live within minutes; the rest get a weekly Claude review |
 
 **Things it can't show:** current bids (Pag-IBIG auctions are sealed-bid), or a
 direct link to one property (Pag-IBIG's site has no such pages).
@@ -67,7 +69,7 @@ Visitor taps "Pin in the wrong place?"
    └─► Cloudflare Worker relay (bot check, limits) ─► data/inbox/ in the GitHub repo
           └─► GitHub Actions "Process pin reports" (~12 s)
                  ├─ clear fix → data/location-overrides.json → republish map
-                 └─ unclear  → "pending" → Claude daily review 09:00 PH → pull request → you merge
+                 └─ unclear  → "pending" → Claude weekly review, Sundays 09:00 PH → pull request → you merge
 ```
 
 ### Accounts and keys
@@ -79,7 +81,7 @@ Visitor taps "Pin in the wrong place?"
 | GitHub key "Pagmamahal relay" (only this repo, file editing only), stored as a relay secret | GitHub settings → tokens | **Nov 20, 2027**: regenerate before then |
 | Turnstile secret key (relay secret) | Cloudflare → Turnstile | doesn't expire |
 | Claude GitHub App (only this repo) | GitHub settings → installations | — |
-| Claude routine "Daily pin review" | claude.ai/code/routines | — |
+| Claude routine "Weekly pin review" | claude.ai/code/routines | — |
 
 ### Pin accuracy (measured)
 
@@ -110,7 +112,7 @@ Those are rejected automatically.
 | Cloudflare Turnstile | Bot check | Unlimited | 1 per report | **$0** |
 | Map tiles | Map background | OSM: no allowance for heavy apps; OpenFreeMap: no limits | 1 map load per visit | **$0** |
 | Overture, PSGC boundaries, OpenStreetMap search | Placing pins | Free / open data | Downloaded monthly; ≤60 OSM lookups/day | **$0** |
-| Claude daily review | Checks unclear reports | Included in your Pro plan's usage | 1 run/day (see below) | **$0 extra** |
+| Claude weekly review | Checks unclear reports | Included in your Pro plan's usage | 1 run/week (see below) | **$0 extra** |
 | **Total** | | | | **$0 / month** |
 
 **Optional:** a custom domain such as `pagmamahalmaps.com` costs about $10–15 a
@@ -132,11 +134,11 @@ charge for the cloud machine it runs on.
 What it would cost at API prices (Claude Sonnet 5.5: $2 per million input
 tokens, $10 per million output, cached input $0.10 per million):
 
-| Day type | Tokens per run (estimate) | API-price equivalent |
+| Week type | Tokens per run (estimate) | API-price equivalent |
 |---|---|---|
-| Nothing to review (most days) | ~20,000 in / ~500 out; stops in seconds | ~$0.04 |
+| Nothing to review (most weeks) | ~5,000–10,000 in / ~200 out; one command, then stops | ~$0.01–0.02 |
 | 5–10 unclear reports | ~200,000–500,000 in (mostly cached) / ~10,000 out | ~$0.20–$1.00 |
-| **Per month** | | **~$1–30**, all inside your Pro plan |
+| **Per month** (4–5 runs) | | **~$0.10–5**, all inside your Pro plan |
 
 These are estimates; the real numbers show in each run's log.
 

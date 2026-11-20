@@ -5,7 +5,7 @@
 //
 // Each report is checked and moved into data/pin-reports.json:
 //   applied   - clear-cut fix, added to data/location-overrides.json right away
-//   pending   - needs Claude (the daily review, docs/daily-pin-review.md)
+//   pending   - needs Claude (the weekly review, docs/pin-review.md)
 //   duplicate - same as a report already waiting
 //   invalid   - unknown property or unusable location
 //

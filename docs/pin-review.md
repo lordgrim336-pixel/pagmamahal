@@ -1,4 +1,7 @@
-# Daily pin review (instructions for the scheduled Claude routine)
+# Weekly pin review (instructions for the scheduled Claude routine)
+
+Runs every Sunday at 9:00 AM Philippine time. To keep it cheap, it first checks
+whether anything is waiting and stops right away if not.
 
 You review "Pin in the wrong place?" reports that the automatic checks could not
 decide, and **propose** decisions in one pull request. The repository owner
@@ -30,10 +33,12 @@ There are two queues:
 
 ## Steps
 
-1. Collect the queue: pending app reports, plus GitHub issues labeled both
-   `wrong-pin` and `needs-review` that don't yet have a `claude-*` label.
-   **If both are empty, stop immediately and change nothing.**
-2. Set up data:
+1. Check the queue **before anything else**: run `node scripts/review-queue.mjs`
+   (it needs nothing installed). **If it prints `total: 0`, stop immediately**:
+   don't read other files, install anything or download data. Otherwise collect
+   the pending app reports in `data/pin-reports.json` and the GitHub issues
+   labeled both `wrong-pin` and `needs-review` without a `claude-*` label.
+2. Only now, set up data:
    - Run `npm ci` and `npm run update-boundaries`.
    - Run `npm run update-overture` only if you need it.
    - Download the live listings from `https://pagmamahal-maps.pages.dev/data/listings.json`.
@@ -47,7 +52,7 @@ There are two queues:
      visitors? Is one visitor sending many reports?
 4. Decide:
    - **approve**: the evidence supports the new spot. Add
-     `"<propertyId>": { "coords": [lat, lng], "note": "Report <id>, approved in daily review" }`
+     `"<propertyId>": { "coords": [lat, lng], "note": "Report <id>, approved in weekly review" }`
      to `data/location-overrides.json`. For a whole building/subdivision request
      that's clearly supported (ideally 2+ different visitors agreeing within
      300 m), use the key `"sub:<SUBDIVISION>|<CITY>"` written exactly as in the listing.
@@ -61,7 +66,7 @@ There are two queues:
    - **GitHub reports:** comment your recommendation and add the label
      `claude-approve`, `claude-reject` or `claude-unsure`.
 6. If you changed any file, open **one** pull request titled
-   `Daily pin review YYYY-MM-DD`.
+   `Weekly pin review YYYY-MM-DD`.
    - In its body, put a short table: report, property, decision, evidence in one sentence.
    - Add `Closes #N` for approved GitHub issues.
    - This pull request is how the owner gets notified, so keep it clear and brief.

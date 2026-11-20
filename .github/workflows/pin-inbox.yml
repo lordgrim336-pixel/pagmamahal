@@ -1,7 +1,7 @@
 # Processes "Pin in the wrong place?" reports sent from the app (no sign-in).
 # The relay saves each report as data/inbox/<id>.json; this checks it with
 # scripts/process-inbox.mjs, applies clear-cut fixes, and queues the rest
-# (status "pending" in data/pin-reports.json) for the daily Claude review.
+# (status "pending" in data/pin-reports.json) for the weekly Claude review.
 # Free for public repositories.
 name: Process pin reports
 
