@@ -1,3 +1,10 @@
 {
-  "_help": "Manual pin corrections. They always win over automatic locations. Key by Pag-IBIG property ID (e.g. \"849202509300005\") for one listing, or by \"sub:<SUBDIVISION>|<CITY>\" exactly as Pag-IBIG writes them (e.g. \"sub:SYMFONI AT NICHOLS|CEBU CITY\") to fix every unit in a subdivision or building. Value: { \"coords\": [latitude, longitude], \"note\": \"who/why\" }."
+  "_help": "Manual pin corrections. They always win over automatic locations. Key by Pag-IBIG property ID (e.g. \"849202509300005\") for one listing, or by \"sub:<SUBDIVISION>|<CITY>\" exactly as Pag-IBIG writes them (e.g. \"sub:SYMFONI AT NICHOLS|CEBU CITY\") to fix every unit in a subdivision or building. Value: { \"coords\": [latitude, longitude], \"note\": \"who/why\" }.",
+  "864202607150003": {
+    "coords": [
+      10.316526,
+      123.883574
+    ],
+    "note": "App report test-1-symfoni (anonymous), auto-applied"
+  }
 }

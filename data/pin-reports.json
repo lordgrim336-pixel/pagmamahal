@@ -1,0 +1,51 @@
+[
+  {
+    "id": "test-1-symfoni",
+    "source": "app",
+    "propertyId": "864202607150003",
+    "subdivision": "SYMFONI AT NICHOLS",
+    "city": "CEBU CITY",
+    "address": "Unit 35 9th Flr. TOWER 01 SYMFONI AT NICHOLS GUADALUPE, CEBU CITY, CEBU, 6000",
+    "currentPin": [
+      10.316630840301514,
+      123.8833236694336
+    ],
+    "currentSource": "overture",
+    "coords": [
+      10.316526,
+      123.883574
+    ],
+    "wholeSubdivision": false,
+    "note": "Setup test: nearby fix",
+    "status": "applied",
+    "reasons": [
+      "Inside Barangay Guadalupe, City of Cebu."
+    ],
+    "at": "2026-11-20T05:42:09Z"
+  },
+  {
+    "id": "test-2-far",
+    "source": "app",
+    "propertyId": "864202607150003",
+    "subdivision": "SYMFONI AT NICHOLS",
+    "city": "CEBU CITY",
+    "address": "Unit 35 9th Flr. TOWER 01 SYMFONI AT NICHOLS GUADALUPE, CEBU CITY, CEBU, 6000",
+    "currentPin": [
+      10.316630840301514,
+      123.8833236694336
+    ],
+    "currentSource": "overture",
+    "coords": [
+      10.3395,
+      123.9185
+    ],
+    "wholeSubdivision": false,
+    "note": "Setup test: deliberately wrong spot, ignore",
+    "status": "pending",
+    "reasons": [
+      "Outside Barangay Guadalupe, the barangay in the address.",
+      "This property already had a fix in the last 30 days."
+    ],
+    "at": "2026-11-20T05:42:09Z"
+  }
+]
