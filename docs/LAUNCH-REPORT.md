@@ -3,6 +3,15 @@
 *Prepared November 20, 2026. Prices and limits come from the providers' own
 pages, checked that day (sources at the end); they can change.*
 
+> **Status, Nov 20, 2026 (evening):** sections 6.1–6.5, 6.6 (pages drafted,
+> wording awaiting owner approval) and 6.8's rate warning are **done**. The site
+> is live at **https://pagmamahal-maps.pages.dev**, published daily by GitHub
+> Actions with the `CLOUDFLARE_API_TOKEN` secret (Cloudflare key "Pagmamahal Maps
+> publish", Pages: Edit only, **expires Nov 20, 2027**). The old GitHub Pages
+> address redirects there. 18 automated tests run on every change. Still open: the
+> owner approving the About/Privacy wording, choosing a code license, and the
+> phone test (6.9). Below is the plan as written before the work.
+
 ---
 
 ## 1. Summary
