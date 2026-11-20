@@ -1,0 +1,16 @@
+# Cloudflare Workers config for the report relay. Deploy: npx wrangler deploy
+name = "pagmamahal-reports"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "https://lordgrim336-pixel.github.io,http://localhost:5173"
+GITHUB_REPO = "lordgrim336-pixel/pagmamahal"
+DAILY_CAP = "200"
+PER_VISITOR_DAILY_CAP = "10"
+
+# Daily limits. Created with: npx wrangler kv namespace create REPORTS
+# [[kv_namespaces]]
+# binding = "REPORTS"
+# id = "<filled in at setup>"

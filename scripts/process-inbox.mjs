@@ -123,6 +123,7 @@ async function main() {
       coords: d.coords ?? null,
       wholeSubdivision: !!report.wholeSubdivision,
       note: String(report.note ?? "").slice(0, 500),
+      visitor: String(report.visitor ?? "").slice(0, 24), // salted hash from the relay, not an IP
       status: d.status,
       reasons: d.reasons,
       at: report.receivedAt && !Number.isNaN(Date.parse(report.receivedAt)) ? report.receivedAt : new Date().toISOString(),

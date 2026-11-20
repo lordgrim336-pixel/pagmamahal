@@ -41,11 +41,13 @@
     ],
     "wholeSubdivision": false,
     "note": "Setup test: deliberately wrong spot, ignore",
-    "status": "pending",
+    "status": "rejected",
     "reasons": [
       "Outside Barangay Guadalupe, the barangay in the address.",
-      "This property already had a fix in the last 30 days."
+      "This property already had a fix in the last 30 days.",
+      "Setup test: deliberately wrong spot."
     ],
-    "at": "2026-11-20T05:42:09Z"
+    "at": "2026-11-20T05:42:09Z",
+    "reviewedBy": "setup"
   }
 ]

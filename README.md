@@ -60,9 +60,7 @@ data lacks.
 ### Fixing wrong pins
 
 Anyone can press **Pin in the wrong place?**, tap the right spot and press Send.
-Set where reports go in `public/js/config.js`: a GitHub repo (opens a
-prefilled issue) or an email address. If neither is set, the report is copied for
-the person to send you. To apply a report, paste its entry into
+Reports are handled automatically (see "How wrong-pin reports are handled" below). To apply a report, paste its entry into
 `data/location-overrides.json`. Key it by property ID for one listing, or by
 `sub:<SUBDIVISION>|<CITY>` to fix every unit in a building or subdivision. It
 takes effect on the next `npm run fetch`.
@@ -121,26 +119,38 @@ account only to report a wrong pin.
 
 ### How wrong-pin reports are handled
 
-1. A user taps **Pin in the wrong place?**, taps the right spot and presses Send.
-   This opens the report form on GitHub, already filled in.
-2. **Check pin report** (`.github/workflows/pin-report.yml`) checks it within
-   minutes, using `scripts/review-report.mjs`:
-   - **Applied automatically** if the spot is inside the property's town and
-     either inside its barangay or within 1.5 km of the current pin. The fix is
-     saved to `data/location-overrides.json`, the reporter is thanked, and the
-     map republishes.
-   - **Labeled `needs-review`** if the spot is outside the town or far away, if
-     the property has Pag-IBIG GPS or an earlier verified fix, if the reporter's
-     account is under a week old, or if the reporter already had 10 fixes today.
-   - A fix for a **whole building/subdivision** needs two different people
-     reporting spots within 300 m. Until then only the reported unit moves.
-3. **Weekly Claude review:** a scheduled Claude routine (runs on your Claude plan,
-   no extra charge) follows `docs/weekly-pin-review.md`. It looks at the
-   `needs-review` reports, comments its recommendation on each, and opens one pull
-   request with the fixes it recommends. Merging that PR applies them.
-4. You can also approve any report yourself by adding the **approved** label.
+1. A user taps **Pin in the wrong place?**, taps the right spot and presses
+   **Send**. There's no sign-in: the report goes to a small free relay on
+   Cloudflare (`relay/`). The relay runs an invisible bot check (Turnstile),
+   limits reports per day, and saves the report as `data/inbox/<id>.json` in
+   this repo. Visitor IP addresses are never stored, only a salted hash used to
+   spot repeat reporters.
+2. **Process pin reports** (`.github/workflows/pin-inbox.yml`) checks each report
+   within minutes, using `scripts/process-inbox.mjs`. The report is **applied
+   automatically** only if all of these hold:
+   - the spot is inside the property's town and barangay;
+   - the current pin isn't Pag-IBIG's own GPS or an earlier verified fix;
+   - the property hasn't had a fix in the last 30 days;
+   - it's for one property only;
+   - fewer than 30 automatic fixes were made today.
+
+   Anything else is marked `pending` in `data/pin-reports.json`.
+3. **Daily Claude review:** a scheduled Claude routine runs every day at 9:00 AM
+   Philippine time, on your Claude plan with no extra charge. It follows
+   `docs/daily-pin-review.md`. If nothing is pending it stops right away.
+   Otherwise it weighs the evidence (boundaries, Overture, OpenStreetMap, other
+   reports) and opens one pull request with its decisions. GitHub notifies you;
+   merging the PR applies the fixes and republishes the map.
+4. People with GitHub accounts can also use the issue form (`wrong-pin` label).
+   Those reports are checked by `.github/workflows/pin-report.yml`, and you can
+   approve any report yourself by adding the **approved** label.
 
 Every fix is a normal commit, so a bad one can be reverted from GitHub's history.
+
+### Relay setup (once)
+
+See `relay/README.md`. Until the relay is set up (`endpoint` in
+`public/js/config.js` is empty), **Send** falls back to the GitHub issue form.
 
 ## Putting it online elsewhere
 

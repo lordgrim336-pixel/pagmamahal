@@ -1,9 +1,11 @@
-// Where "Pin in the wrong place?" reports go. Set ONE of these:
-//   githubRepo: "your-name/your-repo"  -> opens the prefilled report form on GitHub
-//   email: "you@example.com"           -> opens a prefilled email
-// If both are empty, the correction is copied to the clipboard instead.
-// When the site is built by GitHub Actions, githubRepo is filled in automatically.
+// Where "Pin in the wrong place?" reports go, in order of preference:
+//   endpoint + turnstileSiteKey -> one-tap, no sign-in (the Cloudflare relay in relay/)
+//   githubRepo                  -> opens the pre-filled report form on GitHub (needs an account)
+//   email                       -> opens a pre-filled email
+// If none is set, the report is copied to the clipboard instead.
 export const REPORT = {
-  githubRepo: "",
+  endpoint: "",
+  turnstileSiteKey: "",
+  githubRepo: "lordgrim336-pixel/pagmamahal",
   email: "",
 };

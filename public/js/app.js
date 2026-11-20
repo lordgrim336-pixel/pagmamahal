@@ -366,8 +366,9 @@ function openDetail(id, { fly = false } = {}) {
 }
 
 // ---------------------------------------------------------------- report a wrong pin
-// The user taps the correct spot; we prepare a correction for the site owner,
-// who adds approved ones to data/location-overrides.json.
+// The user taps the correct spot and presses Send. With the relay configured
+// (REPORT.endpoint), the report is sent silently: no sign-in, no new page.
+// Otherwise it falls back to a GitHub form, email, or copying the details.
 const reportBar = $("#reportBar");
 let reporting = null;
 function startReport(p) {
@@ -376,47 +377,112 @@ function startReport(p) {
   map.closePopup();
   if (p.coords) map.setView(p.coords, Math.max(map.getZoom(), 16));
   showAccuracy(p);
-  reportBar.innerHTML = `<span>Tap where <b>${esc(title(p.subdivision) || "the property")}</b> really is, then press Send.</span>
+  const sub = p.subdivision?.trim();
+  reportBar.innerHTML = `<span class="report-msg">Tap where <b>${esc(title(sub) || "the property")}</b> really is, then press Send.</span>
+    ${sub ? `<label class="report-whole"><input type="checkbox" id="reportWhole"> Same fix for the whole building / subdivision</label>` : ""}
+    <input type="text" id="reportWebsite" name="website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+    <div id="reportCheck"></div>
     <span class="report-actions"><button class="btn" id="reportCancel">Cancel</button><button class="btn primary" id="reportSend" disabled>Send</button></span>`;
   reportBar.hidden = false;
   map.getContainer().classList.add("picking");
   $("#reportCancel").addEventListener("click", endReport);
   $("#reportSend").addEventListener("click", sendReport);
+  if (REPORT.endpoint) loadTurnstile().catch(() => {}); // warm up the bot check
 }
 function endReport() {
   reporting?.marker?.remove();
+  if (reporting?.widget != null) window.turnstile?.remove(reporting.widget);
   reporting = null;
   reportBar.hidden = true;
   map.getContainer().classList.remove("picking");
   hideAccuracy();
 }
 map.on("click", (e) => {
-  if (!reporting) return;
+  if (!reporting || reporting.sending) return;
   const ll = [e.latlng.lat, e.latlng.lng];
   if (reporting.marker) reporting.marker.setLatLng(ll);
   else reporting.marker = L.marker(ll, { draggable: true, title: "Correct location" }).addTo(map);
   $("#reportSend").disabled = false;
 });
-function sendReport() {
+
+// Cloudflare Turnstile: an invisible bot check that only shows a checkbox if it's unsure.
+let turnstileLoading = null;
+function loadTurnstile() {
+  if (window.turnstile) return Promise.resolve();
+  turnstileLoading ??= new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async = true;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error("Couldn't load the bot check"));
+    document.head.append(s);
+  });
+  return turnstileLoading;
+}
+async function botCheckToken() {
+  await loadTurnstile();
+  return new Promise((resolve, reject) => {
+    reporting.widget = window.turnstile.render("#reportCheck", {
+      sitekey: REPORT.turnstileSiteKey,
+      appearance: "interaction-only",
+      callback: resolve,
+      "error-callback": () => reject(new Error("The bot check failed. Please try again.")),
+    });
+  });
+}
+
+function reportMessage(html, done = false) {
+  reportBar.querySelector(".report-msg").innerHTML = html;
+  if (done) {
+    reportBar.querySelector(".report-actions").innerHTML = `<button class="btn primary" id="reportClose">Close</button>`;
+    $("#reportClose").addEventListener("click", endReport);
+    reportBar.querySelector(".report-whole")?.remove();
+  }
+}
+
+async function sendReport() {
   const { p, marker } = reporting;
   const ll = marker.getLatLng();
   const coords = [Number(ll.lat.toFixed(6)), Number(ll.lng.toFixed(6))];
-  const entry = {
-    [p.id]: { coords, note: `Reported via app ${new Date().toISOString().slice(0, 10)}: ${p.subdivision?.trim() || ""}, ${p.city}` },
-  };
+  const whole = !!$("#reportWhole")?.checked;
+
+  if (REPORT.endpoint) {
+    reporting.sending = true;
+    $("#reportSend").disabled = true;
+    reportMessage("Sending…");
+    try {
+      const token = await botCheckToken();
+      const res = await fetch(REPORT.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          propertyId: p.id,
+          lat: coords[0],
+          lng: coords[1],
+          wholeSubdivision: whole,
+          website: $("#reportWebsite")?.value ?? "",
+          token,
+        }),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out.ok) throw new Error(out.error || `Error ${res.status}`);
+      reportMessage("✅ <b>Thanks!</b> We'll check it. Clear fixes show up on the map within about 15 minutes; others are reviewed within a day.", true);
+    } catch (err) {
+      reporting.sending = false;
+      $("#reportSend") && ($("#reportSend").disabled = false);
+      reportMessage(`⚠️ ${esc(err.message)}`);
+    }
+    return;
+  }
+
+  const subject = `Wrong pin: ${p.subdivision?.trim() || p.id} (${title(p.city)})`;
   const text =
     `Property ${p.id}\n${p.address}\nCurrent pin: ${p.coords?.join(", ")} (${p.approx || "gps"})\n` +
-    `Correct location: ${coords.join(", ")}\nhttps://www.openstreetmap.org/?mlat=${coords[0]}&mlon=${coords[1]}#map=18/${coords[0]}/${coords[1]}\n\n` +
-    `For data/location-overrides.json:\n${JSON.stringify(entry, null, 2)}`;
-  const subject = `Wrong pin: ${p.subdivision?.trim() || p.id} (${title(p.city)})`;
+    `Correct location: ${coords.join(", ")}${whole ? " (whole building/subdivision)" : ""}\n` +
+    `https://www.openstreetmap.org/?mlat=${coords[0]}&mlon=${coords[1]}#map=18/${coords[0]}/${coords[1]}`;
   if (REPORT.githubRepo) {
-    // Opens the "Pin in the wrong place" form (.github/ISSUE_TEMPLATE/wrong-pin.yml) pre-filled.
-    const q = new URLSearchParams({
-      template: "wrong-pin.yml",
-      title: subject,
-      property_id: p.id,
-      location: coords.join(", "),
-    });
+    // The "Pin in the wrong place" form (.github/ISSUE_TEMPLATE/wrong-pin.yml), pre-filled. Needs a GitHub account.
+    const q = new URLSearchParams({ template: "wrong-pin.yml", title: subject, property_id: p.id, location: coords.join(", ") });
     window.open(`https://github.com/${REPORT.githubRepo}/issues/new?${q}`, "_blank", "noopener");
   } else if (REPORT.email) {
     location.href = `mailto:${REPORT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;

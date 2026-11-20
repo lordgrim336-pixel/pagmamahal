@@ -154,6 +154,10 @@ select:disabled { opacity: .55; cursor: not-allowed; }
   border-radius: 12px; padding: 8px 12px; box-shadow: var(--shadow); font-size: 14px;
 }
 .report-bar[hidden] { display: none; }
+.report-msg { flex: 1 1 220px; }
+.report-whole { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.report-bar .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+#reportCheck:empty { display: none; }
 .report-actions { display: flex; gap: 8px; }
 .report-actions .btn { min-height: 36px; padding: 6px 12px; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }

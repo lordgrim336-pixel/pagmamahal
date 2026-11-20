@@ -73,10 +73,6 @@ jobs:
       - name: Collect listings and place pins
         run: npm run fetch -- --osm-budget 60
 
-      - name: Point "Pin in the wrong place?" at this repository
-        run: |
-          printf 'export const REPORT = { githubRepo: "%s", email: "" };\n' "$GITHUB_REPOSITORY" > public/js/config.js
-
       - name: Save new location lookups
         run: |
           git config user.name "github-actions[bot]"
