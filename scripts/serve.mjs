@@ -17,7 +17,8 @@ createServer(async (req, res) => {
   const file = normalize(join(ROOT, path));
   if (!file.startsWith(ROOT)) return res.writeHead(403).end();
   try {
-    const body = await readFile(file);
+    // Like Cloudflare Pages: /about serves about.html.
+    const body = await readFile(file).catch(() => (extname(file) ? Promise.reject() : readFile(file + ".html")));
     res.writeHead(200, { "Content-Type": TYPES[extname(file)] || "application/octet-stream", "Cache-Control": "no-cache" });
     res.end(body);
   } catch {

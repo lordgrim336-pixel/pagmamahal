@@ -11,20 +11,38 @@ Not affiliated with Pag-IBIG Fund. See the site's
 ## What it does
 
 - **Map** of properties from the Pag-IBIG Online Public Auction (1st auction,
-  2nd auction and negotiated sale). Teal pins have the exact GPS reading Pag-IBIG
-  posted. Orange pins are approximate: Pag-IBIG left the GPS blank, so the pin sits
-  at the subdivision or town center.
-- **List** with search, a Region → Province → City filter (each step is
-  optional, and each dropdown only lists places that have properties), other
-  filters (sale type, property type, occupancy, max price, "bidding open now")
-  and sorting.
-- **Property details**: minimum bid price, bidding dates, areas, occupancy,
-  remarks, the handling office, and buttons for the Pag-IBIG site, Google Maps
-  and the loan calculator.
+  2nd auction and negotiated sale). Each pin shows its minimum price. Zoomed in on
+  a street, pins turn into round photos of the property (only when 30 or fewer are
+  on screen). Tapping a pin shows a small preview card; tapping a group of
+  properties in one building lists them.
+- **Photos** from Pag-IBIG on every property that has them, with a credit.
+- **List** with search, quick filter chips (bidding open, under ₱1M, house, condo,
+  lot, unoccupied) and a filter sheet: Region → Province → City (each step is
+  optional), price range, property type, bidding status, sale type and occupancy.
+  The button shows how many properties match before you apply.
+- **Property details**: price, a bidding countdown ("Closes in 3 days"), areas,
+  occupancy, how accurate the pin is, an estimated monthly payment, and buttons to
+  bid on Pag-IBIG, get directions, share a link and save the property.
+- **Saved**: properties you save stay on your phone (no account).
+- **Settings**: five themes (Sand, Oat, Khaki, White, Dark) with an option to follow
+  the phone's dark mode, text size, data saver, photo pins, a lite map for older
+  phones, your loan numbers (income, down payment, age) for every estimate, storage
+  and reset tools, install, share and help. All kept on the phone.
 - **Loan calculator**: adjust the price, down payment, income, age, term and
   interest plan. It shows the monthly amortization, the loan amount (and which
   limit decided it), the cash you need, total interest, and a comparison of every
   interest plan.
+
+### Made for low-end phones
+
+- Photos are small thumbnails (about 6 KB) until you open a property; full photos
+  load one at a time as you swipe.
+- "Data saver" in Settings turns all photos off (it's on automatically when the
+  phone asks to save data).
+- On phones with little memory the map draws at lower resolution, shows fewer photo
+  pins and loads the list in smaller pages.
+- Offline storage is kept to about 5 MB: the app and today's listings. Photos are
+  never stored offline.
 
 ### Limits of the Pag-IBIG data
 
@@ -89,6 +107,13 @@ Then collect the listings:
 
 ```powershell
 npm run fetch
+```
+
+and, optionally, the photos (the first run takes about an hour; later runs only
+look up new properties):
+
+```powershell
+node scripts/photos.mjs
 ```
 
 This writes `public/data/listings.json` in a minute or two. OpenStreetMap's rules
@@ -234,9 +259,14 @@ Estimates leave out insurance (MRI/SRI and fire insurance) and fees.
 | `docs/daily-pin-review.md` | Instructions for the daily Claude review |
 | `docs/LAUNCH-REPORT.md` | Status report, costs and launch plan |
 | `docs/research/` | Research on free location sources |
+| `scripts/photos.mjs` | Finds Pag-IBIG's photos and makes the small thumbnails |
+| `data/photo-cache.json` | Saved photo lists (generated) |
+| `public/thumbs/` | Photo thumbnails (generated, not committed) |
 | `scripts/serve.mjs` | Small local web server |
 | `public/index.html` | The app page |
-| `public/js/app.js` | Map, list, details and calculator screens |
+| `public/js/app.js` | Map, list, details, saved and calculator screens |
+| `public/js/util.js` | Shared helpers: prices, dates, filters, phone detection |
+| `public/js/theme.js` | Applies the chosen theme and text size before the page draws |
 | `public/js/loan-rules.js` | Pag-IBIG loan rules and loan math |
 | `public/css/styles.css` | Styles (light and dark, phone and desktop) |
 | `public/sw.js`, `public/manifest.webmanifest` | Offline support and phone install |

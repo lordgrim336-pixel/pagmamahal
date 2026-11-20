@@ -78,6 +78,26 @@ jobs:
       - name: Collect listings and place pins
         run: npm run fetch -- --osm-budget 60
 
+      # Small square photos for the map pins and list (about 6 KB each). Kept
+      # between runs so only new properties need one; old ones are deleted.
+      - name: Restore photo thumbnails
+        uses: actions/cache/restore@v4
+        with:
+          path: public/thumbs
+          key: thumbs-${{ github.run_id }}
+          restore-keys: thumbs-
+
+      - name: Find property photos
+        continue-on-error: true # photos are a bonus; never block the daily update
+        run: node scripts/photos.mjs --max-lookups 1500 --max-thumbs 6000 --minutes 30
+
+      - name: Keep photo thumbnails for next time
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: public/thumbs
+          key: thumbs-${{ github.run_id }}
+
       - name: Save new location lookups
         run: |
           git config user.name "github-actions[bot]"
@@ -85,9 +105,9 @@ jobs:
           # Once a month, record a heartbeat so GitHub keeps the daily schedule enabled
           # (scheduled workflows stop after 60 days without repository activity).
           echo "${{ steps.month.outputs.month }}" > data/last-refresh.txt
-          git add data/geocode-cache.json data/last-refresh.txt
+          git add data/geocode-cache.json data/photo-cache.json data/last-refresh.txt
           if ! git diff --cached --quiet; then
-            git commit -m "Update location cache"
+            git commit -m "Update location and photo caches"
             ok=0
             for i in 1 2 3; do
               if git pull --rebase --autostash && git push; then ok=1; break; fi
